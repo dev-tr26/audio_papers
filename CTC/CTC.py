@@ -84,12 +84,50 @@ def CTC_LOSS(log_probs, targets, input_lengths, target_lengths, blank=0, reducti
     log_alpha[0, :, 2+1] = log_probs[0, B, _t_a_r_g_e_t_s[:,1]]
     
     for T_ in range(1, T):
-        log_probs_T_ = log_probs[T_] # all probs of current timestamp
-        log_alpha_T_prev_state = log_alpha[T-1, : , 2:]
-         
+        log_probs_T_ = log_probs_[T_] # all probs of current timestamp
+        
+        log_alpha_T_prev_state = log_alpha[T_-1, : , 2:]   # all probs of keeping in same timestamp going forward 
+        log_alpha_T_prev_next_state =  log_alpha[T_-1, :, 1:-1] # all probs of moving one step forward in time 
+        
+        # [pad, pad , T, T, T, T, T]  2 to n all probs  == T, T, T, T, T
+        # 1 to -1 all probs going 1 step backward ( 1 step transtion )== pad , T, T, T, T
+        # 0 to -2 all probs going 2 step backward ( 2 step transition ) == pad, pad, T, T, T
+        
+        log_alpha_two_step_transition = torch.where(diff_labels, input=log_alpha[T_-1, :, :-2], other = NEG_INF) # mask probs true for only valid transition check 
+        # valid transition diff_labels = true , invalid transition probs = 0 so -ve infinity 
+        
+        prob = torch.logsumexp(torch.stack([log_alpha_T_prev_next_state, log_alpha_T_prev_state, log_alpha_two_step_transition ]), dim=0)
+        
+        print(log_probs_T_.shape)
+        print(prob.shape)
+        log_alpha[T_, :, 2:] = log_probs_T_ + prob 
+        
+    final_log_alpha = log_alpha[input_lengths-1, B]
+    print(final_log_alpha)
+
+    # [A, B, C, D, E, F, G, H, I, J]
+    # after padding [- , A, -, B, -, C, -, D, -, E, -, F, -, G, -, H, -, I, -, J, -, -]
+    # we can end with either J or blank token just after it 
+    ending_on_blank_index =  2 + target_lengths*2 
+    ending_on_label_index =  2 + target_lengths*2 - 1 
+    
+    indexes_to_get = torch.stack([ending_on_label_index, ending_on_blank_index], dim=-1)
+    print(indexes_to_get)
+    label_or_blank_ending_log_alphas = final_log_alpha.gather(dim=-1, index=indexes_to_get)
+    print(label_or_blank_ending_log_alphas)
 
 
-
+    # we want to maximize prob but nn minimize loss so we minimize negative of probs 
+    ctc_loss = - torch.logsumexp(label_or_blank_ending_log_alphas, dim=-1)
+    
+    
+    if reduction == "none":
+        return ctc_loss
+    elif reduction == "sum":
+        return torch.sum(ctc_loss)
+    elif reduction == "mean":
+        return torch.mean(ctc_loss)
+     
 
 
 
@@ -97,20 +135,29 @@ def CTC_LOSS(log_probs, targets, input_lengths, target_lengths, blank=0, reducti
 
 if __name__ == "__main__":
     # 128 features extracted from convolution, batch_size, no of possibilities for different chars  
-    T,B,C = 128, 1, 32
+    T,B,C = 128, 2, 32
     t =50 # target char sequence length
     blank = 0   
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    atol = 1e-3
     
     logits = torch.randn(T,B,C).requires_grad_().to(device)
-    log_probs = logits.log_softmax(dim=-1).to(device)
     
     # any random num b/w 1 and 31 as target seq is 32 
-    targets = torch.randint(1, C, (B,t), dtype=torch.long).to(device)
+    targets = torch.randint(blank+1, C, (B,t), dtype=torch.long).to(device)
     
     # vector of shape batch size tells loss fun what is length of each input seq
     # as we have no padding 
     input_lengths = torch.full((B,), T, dtype=torch.long).to(device)   # i/p seq len 
     target_lengths = torch.full((B,), t, dtype=torch.long).to(device)  # target seq len 
-    CTC_LOSS(log_probs, targets, input_lengths, target_lengths)
     
+    log_probs = logits.log_softmax(dim=-1).to(device)
+    
+    my_ctc_loss = CTC_LOSS(log_probs, targets, input_lengths, target_lengths)
+    my_loss_grads = torch.autograd.grad(my_ctc_loss.mean(), logits, retain_graph=True)[0]
+
+    torch_ctc_loss = torch.nn.functional.ctc_loss(log_probs, targets, input_lengths,target_lengths, blank=0, reduction='none')
+    torch_loss_grad = torch.autograd.grad(torch_ctc_loss.mean(), logits, retain_graph=True)[0]
+    
+    print(f"CTC Loss Matches:", torch.allclose(torch_ctc_loss, my_ctc_loss, atol=atol))
+    print(f"CTC Gradients Match:", torch.allclose(torch_loss_grad, my_loss_grads, atol=atol))
