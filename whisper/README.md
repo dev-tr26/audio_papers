@@ -30,6 +30,47 @@ Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR datase
 
 ---
 
+## Test Metrics 
+
+![alt text](Test-metrics.png)
+
+
+
+![alt text](Final-test-metrics.png)
+
+
+## Test - eval 
+
+![alt text](Test-eval.png)
+
+
+
+## word freq 
+
+
+![alt text](word_frequency.png)
+
+
+
+## Loss Curves 
+
+
+![alt text](Loss-curves.png)
+
+
+
+
+## Tokenizer check 
+
+
+![alt text](Tokenizer-checked.png)
+
+
+---
+
+
+
+
 ## Pipeline Overview
 
 ```
@@ -51,16 +92,6 @@ Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR datase
 ```
 
 ---
-
-## Setup
-
-### Requirements
-
-```bash
-pip install transformers datasets peft evaluate jiwer rouge_score \
-            librosa soundfile wandb accelerate torchaudio \
-            onnx onnxruntime optimum[onnxruntime]
-```
 
 ### HuggingFace Access
 
@@ -125,70 +156,6 @@ early_stopping_patience = 4
 
 ---
 
-## Loading the Model
-
-### Merged HF model
-
-```python
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
-
-processor = WhisperProcessor.from_pretrained("./whisper-small-gu-lora/best_merged")
-model = WhisperForConditionalGeneration.from_pretrained("./whisper-small-gu-lora/best_merged")
-```
-
-### LoRA adapter only
-
-```python
-from transformers import WhisperForConditionalGeneration
-from peft import PeftModel
-
-base = WhisperForConditionalGeneration.from_pretrained("openai/whisper-small")
-model = PeftModel.from_pretrained(base, "./whisper-small-gu-lora")
-model = model.merge_and_unload()
-```
-
-### ONNX (CPU / edge)
-
-```python
-from optimum.onnxruntime import ORTModelForSpeechSeq2Seq
-from transformers import pipeline, WhisperProcessor
-
-processor = WhisperProcessor.from_pretrained("./whisper-small-gu-onnx")
-ort_model = ORTModelForSpeechSeq2Seq.from_pretrained("./whisper-small-gu-onnx")
-pipe = pipeline("automatic-speech-recognition", model=ort_model,
-                tokenizer=processor.tokenizer,
-                feature_extractor=processor.feature_extractor)
-print(pipe("audio.wav")["text"])
-```
-
----
-
-## Inference
-
-```python
-import torch, librosa
-from transformers import WhisperProcessor, WhisperForConditionalGeneration
-
-DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
-MODEL_DIR = "./whisper-small-gu-lora/best_merged"
-
-processor = WhisperProcessor.from_pretrained(MODEL_DIR)
-model = WhisperForConditionalGeneration.from_pretrained(MODEL_DIR).to(DEVICE)
-model.eval()
-
-def transcribe(audio_path: str) -> str:
-    waveform, sr = librosa.load(audio_path, sr=16_000, mono=True)
-    inputs = processor(waveform, sampling_rate=16_000, return_tensors="pt")
-    input_features = inputs.input_features.to(DEVICE)
-    forced_ids = processor.get_decoder_prompt_ids(language="Gujarati", task="transcribe")
-    with torch.no_grad():
-        ids = model.generate(input_features, forced_decoder_ids=forced_ids)
-    return processor.batch_decode(ids, skip_special_tokens=True)[0]
-
-print(transcribe("sample.wav"))
-```
-
----
 
 ## Author
 
