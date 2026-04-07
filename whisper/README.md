@@ -1,6 +1,6 @@
 # Whisper-Small LoRA Fine-tuning on Kathbath Gujarati
 
-Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset using LoRA (Low-Rank Adaptation). Targets Kaggle 2x T4 GPUs with fp16 training.
+Fine-tuned OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset using LoRA (Low-Rank Adaptation). Targets Kaggle 2x T4 GPUs with fp16 training.
 
 ---
 
