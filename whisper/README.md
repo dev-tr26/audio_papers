@@ -30,6 +30,12 @@ Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR datase
 
 ---
 
+## Train Metrics 
+
+<img width="564" height="191" alt="image" src="https://github.com/user-attachments/assets/d9e80f7c-6547-455f-a3b9-5af608052220" />
+
+
+
 ## Test Metrics 
 
 ![alt text](Test-metrics.png)
