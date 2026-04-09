@@ -92,9 +92,8 @@ Fine-tuned OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset
 10. Visualize spectrograms
 11. Evaluate on test set                          (WER, CER)
 12. Save merged model + PyTorch checkpoint
-13. Export to ONNX                                (edge deployment)
-14. Download model                                (4 format options)
-15. Log everything to W&B
+13. Download model                                (4 format options)
+14. Log everything to W&B
 ```
 
 ---
