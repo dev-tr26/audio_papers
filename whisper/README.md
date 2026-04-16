@@ -1,6 +1,6 @@
 # Whisper-Small LoRA Fine-tuning on Kathbath Gujarati
 
-Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset using LoRA (Low-Rank Adaptation). Targets Kaggle 2x T4 GPUs with fp16 training.
+Fine-tuned OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset using LoRA (Low-Rank Adaptation). Targets Kaggle 2x T4 GPUs with fp16 training.
 
 ---
 
@@ -29,6 +29,12 @@ Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR datase
 | Target modules | `q_proj`, `v_proj`, `k_proj`, `out_proj`, `fc1`, `fc2` |
 
 ---
+
+## Train Metrics 
+
+<img width="564" height="191" alt="image" src="https://github.com/user-attachments/assets/d9e80f7c-6547-455f-a3b9-5af608052220" />
+
+
 
 ## Test Metrics 
 
@@ -86,9 +92,8 @@ Fine-tuning OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR datase
 10. Visualize spectrograms
 11. Evaluate on test set                          (WER, CER)
 12. Save merged model + PyTorch checkpoint
-13. Export to ONNX                                (edge deployment)
-14. Download model                                (4 format options)
-15. Log everything to W&B
+13. Download model                                (4 format options)
+14. Log everything to W&B
 ```
 
 ---
