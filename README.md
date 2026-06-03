@@ -8,7 +8,8 @@ re-implementation refrences :
 ## 2. Tacotron implementation using pytorch also has 2 versions :
 
 - one with griffin-lin algorithm and one with the neural vocoder from scratch.
-
 - the model is trained on the LJ-speech data : 
 
 ## 3. Whisper finetuned on gujarati Kathbath dataset by ai4Bharat (Readme in folder ) 
+
+## 4. DeepSpeech-2 Paper Replication
