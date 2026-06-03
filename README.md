@@ -1,3 +1,5 @@
+## In this repo i have tried to reproduced several SOTA speech and audio deep learning paper impementations
+
 ## 1. CTC (connectionist temporal classification )
 
 re-implementation refrences : 
