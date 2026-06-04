@@ -15,3 +15,5 @@ re-implementation refrences :
 ## 3. Whisper finetuned on gujarati Kathbath dataset by ai4Bharat (Readme in folder ) 
 
 ## 4. DeepSpeech-2 Paper Replication
+
+- Reproduced DeepSpeech-2 ASR paper on LibriSpeech Dataset
