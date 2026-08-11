@@ -36,18 +36,6 @@ Fine-tuned OpenAI's Whisper-Small on the AI4Bharat Kathbath Gujarati ASR dataset
 
 
 
-## Test Metrics 
-
-![alt text](Test-metrics.png)
-
-
-
-![alt text](Final-test-metrics.png)
-
-
-## Test - eval 
-
-![alt text](Test-eval.png)
 
 
 
